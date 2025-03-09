@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 
 ThemeData darkTheme = ThemeData(
-  radioTheme:
-      RadioThemeData(fillColor: WidgetStateProperty.all(CustomColors.primary)),
-  iconButtonTheme: IconButtonThemeData(
-      style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.all(CustomColors.primary))),
-  iconTheme: IconThemeData(color: CustomColors.lightScaffold),
-  snackBarTheme: SnackBarThemeData(
+  iconTheme: const IconThemeData(color: CustomColors.primary),
+  fontFamily: 'Poppins',
+  snackBarTheme: const SnackBarThemeData(
       backgroundColor: CustomColors.primary,
       behavior: SnackBarBehavior.floating),
   dialogTheme: DialogTheme(
@@ -22,8 +18,8 @@ ThemeData darkTheme = ThemeData(
       backgroundColor: CustomColors.white,
       unselectedItemColor: CustomColors.grey,
       selectedItemColor: CustomColors.white),
-  splashColor: CustomColors.white.withOpacity(.5),
-  highlightColor: CustomColors.white.withOpacity(.5),
+  splashColor: CustomColors.white.withValues(alpha: .5),
+  highlightColor: CustomColors.white.withValues(alpha: .5),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor: CustomColors.primary,
     selectionColor: CustomColors.primary,
@@ -34,111 +30,154 @@ ThemeData darkTheme = ThemeData(
   ),
   checkboxTheme: CheckboxThemeData(side: BorderSide(color: CustomColors.white)),
   listTileTheme: ListTileThemeData(
-      tileColor: CustomColors.bodyDark,
       shape: RoundedRectangleBorder(
           side: BorderSide(color: CustomColors.grey),
           borderRadius: BorderRadius.circular(5))),
-  textButtonTheme: TextButtonThemeData(
+  textButtonTheme: const TextButtonThemeData(
       style: ButtonStyle(
-          overlayColor:
-              MaterialStateColor.resolveWith((states) => CustomColors.primary),
           foregroundColor: WidgetStatePropertyAll(CustomColors.primary))),
   dividerColor: CustomColors.grey,
   appBarTheme: AppBarTheme(
-      color: CustomColors.darkScaffold,
+      color: CustomColors.black,
       elevation: 0,
-      surfaceTintColor: Colors.transparent),
-  scaffoldBackgroundColor: CustomColors.darkScaffold,
+      foregroundColor: CustomColors.white),
+  scaffoldBackgroundColor: CustomColors.black,
   primaryColor: CustomColors.primary,
-  primaryColorLight: CustomColors.primary.withOpacity(.5),
+  primaryColorLight: CustomColors.primary.withValues(alpha: .5),
   brightness: Brightness.light,
   hintColor: CustomColors.grey,
   switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.all(CustomColors.primary.withOpacity(.8)),
+      thumbColor:
+          WidgetStateProperty.all(CustomColors.primary.withValues(alpha: .8)),
       trackColor:
-          WidgetStateProperty.all(CustomColors.primary.withOpacity(.1))),
+          WidgetStateProperty.all(CustomColors.primary.withValues(alpha: .1))),
   elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
           shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           fixedSize: const WidgetStatePropertyAll<Size>(Size(999, 50)),
-          backgroundColor: WidgetStatePropertyAll(CustomColors.primary),
+          backgroundColor: const WidgetStatePropertyAll(CustomColors.primary),
           padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
               EdgeInsets.symmetric(horizontal: 10, vertical: 10)))),
   textTheme: TextTheme(
+    // Main Heading
     displayLarge: TextStyle(
-      fontFamily: 'Georgia',
-      fontSize: 40.0,
+      fontSize: 32,
       fontWeight: FontWeight.bold,
       color: CustomColors.white,
+      fontFamily: 'Poppins',
     ),
+    // Sub Heading
     displayMedium: TextStyle(
-      fontSize: 18.0,
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+    // Section Heading
+    displaySmall: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+
+    // Card Titles
+    headlineLarge: TextStyle(
+      fontSize: 22,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+    headlineMedium: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+    headlineSmall: TextStyle(
+      fontSize: 18,
       fontWeight: FontWeight.w400,
       color: CustomColors.white,
       fontFamily: 'Poppins',
     ),
-    displaySmall: const TextStyle(
-      fontSize: 14.0,
-      fontFamily: 'Poppins',
-      color: Colors.grey,
-    ),
+
+    // Bold Titles
     titleLarge: TextStyle(
-      fontSize: 24.0,
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+    titleMedium: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
       color: CustomColors.white,
       fontFamily: 'Poppins',
     ),
     titleSmall: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
       color: CustomColors.white,
-      fontSize: 16.0,
-      fontWeight: FontWeight.w400,
       fontFamily: 'Poppins',
     ),
-    headlineMedium: TextStyle(
-      fontSize: 24.0,
-      fontFamily: 'Poppins',
+
+    // Main body text
+    bodyLarge: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.normal,
       color: CustomColors.white,
-    ),
-    headlineSmall: TextStyle(
-      fontSize: 16.0,
-      fontFamily: 'Poppins',
-      color: CustomColors.white,
-    ),
-    bodySmall: TextStyle(
-      color: CustomColors.grey,
-      fontSize: 16.0,
       fontFamily: 'Poppins',
     ),
     bodyMedium: TextStyle(
-      color: CustomColors.bodyGrey,
+      fontSize: 14,
+      fontWeight: FontWeight.normal,
+      color: CustomColors.white,
       fontFamily: 'Poppins',
-      fontWeight: FontWeight.w500,
     ),
-    bodyLarge: TextStyle(
-      color: CustomColors.lightScaffold,
-      fontSize: 20,
+    bodySmall: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.normal,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+
+    // Buttons
+    labelLarge: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+    labelMedium: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.white,
+      fontFamily: 'Poppins',
+    ),
+    labelSmall: TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+      color: CustomColors.white,
       fontFamily: 'Poppins',
     ),
   ),
 );
 
 ThemeData lightTheme = ThemeData(
-  radioTheme:
-      RadioThemeData(fillColor: WidgetStateProperty.all(CustomColors.primary)),
-  iconButtonTheme: IconButtonThemeData(
-      style: ButtonStyle(
-          foregroundColor: WidgetStateProperty.all(CustomColors.primary),
-          backgroundColor: WidgetStateProperty.all(Colors.transparent))),
+  primaryColor: CustomColors.primary,
+  scaffoldBackgroundColor: CustomColors.primaryScreenColor,
+  // scaffoldBackgroundColor: CustomColors.white,
   fontFamily: 'Poppins',
-  snackBarTheme: SnackBarThemeData(
+  snackBarTheme: const SnackBarThemeData(
     backgroundColor: CustomColors.primary,
     behavior: SnackBarBehavior.fixed,
   ),
-  iconTheme: IconThemeData(color: CustomColors.darkScaffold),
   dialogTheme: DialogTheme(
     backgroundColor: CustomColors.white,
   ),
   bottomSheetTheme: const BottomSheetThemeData(
+      dragHandleColor: Colors.grey,
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -147,8 +186,8 @@ ThemeData lightTheme = ThemeData(
       backgroundColor: CustomColors.white,
       unselectedItemColor: CustomColors.grey,
       selectedItemColor: CustomColors.white),
-  splashColor: CustomColors.white.withOpacity(.5),
-  highlightColor: CustomColors.white.withOpacity(.5),
+  splashColor: CustomColors.white.withValues(alpha: .5),
+  highlightColor: CustomColors.white.withValues(alpha: .5),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor: CustomColors.primary,
     selectionColor: CustomColors.primary,
@@ -159,108 +198,162 @@ ThemeData lightTheme = ThemeData(
     // primarySwatch: CustomColors.primary
   ),
   listTileTheme: ListTileThemeData(
-      tileColor: CustomColors.bodyGrey2,
       shape: RoundedRectangleBorder(
           side: BorderSide(color: CustomColors.grey),
           borderRadius: BorderRadius.circular(5))),
   dividerColor: CustomColors.grey,
-  textButtonTheme: TextButtonThemeData(
+  textButtonTheme: const TextButtonThemeData(
       style: ButtonStyle(
           foregroundColor: WidgetStatePropertyAll(CustomColors.primary))),
   appBarTheme: AppBarTheme(
-      color: CustomColors.lightScaffold,
+      color: CustomColors.white,
       elevation: 0,
-      surfaceTintColor: Colors.transparent),
-  scaffoldBackgroundColor: CustomColors.lightScaffold,
-  primaryColor: CustomColors.primary,
-  primaryColorLight: CustomColors.primary.withOpacity(.5),
+      foregroundColor: CustomColors.black),
+  primaryColorLight: CustomColors.primary.withValues(alpha: .5),
   brightness: Brightness.light,
   hintColor: CustomColors.grey,
-  switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.all(CustomColors.primary.withOpacity(.5)),
-      trackColor: WidgetStateProperty.all(CustomColors.bg)),
+  // switchTheme: SwitchThemeData(
+  //     thumbColor: WidgetStateProperty.all(CustomColors.primary.withValues(.5)),
+  //     trackColor: WidgetStateProperty.all(CustomColors.bg)),
   floatingActionButtonTheme: const FloatingActionButtonThemeData(),
   elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
           shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
           fixedSize: const WidgetStatePropertyAll<Size>(Size(999, 40)),
-          backgroundColor: WidgetStatePropertyAll(CustomColors.primary),
+          backgroundColor: const WidgetStatePropertyAll(CustomColors.primary),
           padding: const WidgetStatePropertyAll<EdgeInsetsGeometry>(
               EdgeInsets.symmetric(horizontal: 10, vertical: 10)))),
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
+    // Main Heading
     displayLarge: TextStyle(
-      fontSize: 40.0,
+      fontSize: 32,
       fontWeight: FontWeight.bold,
-      color: CustomColors.black,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
+    // Sub Heading
     displayMedium: TextStyle(
-      fontSize: 18.0,
-      fontWeight: FontWeight.w400,
-      color: CustomColors.black,
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
-    displaySmall: const TextStyle(
-      fontSize: 14.0,
-      color: Colors.grey,
+    // Section Heading
+    displaySmall: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.primaryTextColor,
+      fontFamily: 'Poppins',
+    ),
+
+    // Card Titles
+    headlineLarge: TextStyle(
+      fontSize: 22,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
     headlineMedium: TextStyle(
-      fontSize: 24.0,
-      color: CustomColors.black,
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
     headlineSmall: TextStyle(
-      fontSize: 16.0,
+      fontSize: 18,
+      fontWeight: FontWeight.w400,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
-      color: CustomColors.black,
     ),
+
+    // Bold Titles
     titleLarge: TextStyle(
-      fontSize: 24.0,
-      color: CustomColors.black,
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      color: CustomColors.primaryTextColor,
+      fontFamily: 'Poppins',
+    ),
+    titleMedium: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
     titleSmall: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
-      color: CustomColors.black,
-      fontSize: 16.0,
     ),
+
+    // Main body text
     bodyLarge: TextStyle(
-      color: CustomColors.darkScaffold,
-      fontSize: 20,
+      fontSize: 16,
+      fontWeight: FontWeight.normal,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
     bodyMedium: TextStyle(
-      color: CustomColors.bodyGrey,
+      fontSize: 14,
+      fontWeight: FontWeight.normal,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
-      fontWeight: FontWeight.w500,
     ),
     bodySmall: TextStyle(
-      color: CustomColors.black,
-      fontSize: 12.0,
+      fontSize: 12,
+      fontWeight: FontWeight.normal,
+      color: CustomColors.primaryTextColor,
+      fontFamily: 'Poppins',
+    ),
+
+    // Buttons
+    labelLarge: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: CustomColors.primaryTextColor,
+      fontFamily: 'Poppins',
+    ),
+    labelMedium: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: CustomColors.primaryTextColor,
+      fontFamily: 'Poppins',
+    ),
+    labelSmall: TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+      color: CustomColors.primaryTextColor,
       fontFamily: 'Poppins',
     ),
   ),
 );
 
 class CustomColors {
-  static Color primary = const Color(0xffFFCD07);
-  static Color primaryLight = const Color(0xffFFCD07).withOpacity(.5);
-  static Color error = Colors.red;
-  static Color success = Colors.green;
+  static const Color primary = Color(0xFFFCCE00);
+  static const Color primaryTextColor = Color(0xFF001921);
+  static const Color secondaryTextColor = Color(0xFF57616A);
+  static const Color bodyTextColor = Color(0xFFE4E6E8);
+  static const Color bodyGrey = Color(0xFFEFF0F1);
+  static const Color textFieldHintColor = Color(0xFF99A2AB);
+  static const Color textFieldFillColor = Color(0xFFF4F5F6);
+  static const Color navBarColor = Color(0xFFFFFFFF);
+  static const Color primaryScreenColor = Color(0xFFEFF0F2);
+  static const Color red = Color(0xFFEA4335);
+  static const Color green = Color(0xFF2CBD53);
+  static const Color blue = Color(0xFF4285F4);
+  static const Color lightBlue = Color(0xFFE1EBFF);
+  static const Color lightOrange = Color(0xFFFFA216);
+  static const Color lightGreen = Color(0xFF07A279);
+  static const Color purple = Color(0xFF958CFE);
+  static const Color lightPurple = Color(0xFFEEE1FF);
   static Color black = Colors.black;
-  static Color darkScaffold = const Color(0xff060606);
-  static Color lightScaffold = Colors.white;
-  static Color bg = Colors.black12.withOpacity(.5);
   static Color white = Colors.white;
   static Color grey = Colors.grey;
-  static Color textGrey = const Color(0xff5F5F5F);
-  static Color textColor = const Color(0xff212121);
-  static Color chatTextColor = const Color(0xff1e1e1e);
-  static Color hintGrey = const Color(0xff686868);
-  static Color customGrey = const Color(0xff6b7a9f);
-  static Color bodyGrey = const Color(0xFF807A6B);
-  static Color bodyGrey2 = const Color(0xFFF3F5F7);
-  static Color bodyDark = const Color(0xFF2e2e35);
+  static const Color errorMessageColor = Color.fromARGB(255, 166, 4, 4);
+  static const Color warningMessageColor = Color(0xFFC2AF6F);
+  static Color success = const Color(0xFF5fa777);
+  static Color greenColor = const Color(0xFFDBF7E6);
+  static Color checkBoxGreen = const Color(0xff07a27a);
+  static Color cardColor = const Color(0xffF7F8F9);
 }
