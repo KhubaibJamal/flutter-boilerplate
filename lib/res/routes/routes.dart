@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_boilerplate/screens/splash/splash_screen.dart';
+import 'package:flutter_boilerplate/presentation/view/splash/splash_screen.dart';
 
 class RouteNames {
   static const String splashScreen = 'splash_screen';

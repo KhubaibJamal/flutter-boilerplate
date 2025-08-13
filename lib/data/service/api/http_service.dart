@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_boilerplate/service/storage_service.dart';
+import 'package:flutter_boilerplate/data/service/locals/storage_service.dart';
 import 'package:http/http.dart' as http;
 
 class Response {

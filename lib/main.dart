@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_boilerplate/l10n/l10n.dart';
-import 'package:flutter_boilerplate/provider/auth_provider.dart';
+import 'package:flutter_boilerplate/presentation/viewmodel/auth_viewmodel.dart';
 import 'package:flutter_boilerplate/res/constants/constants.dart';
 import 'package:flutter_boilerplate/res/routes/routes.dart';
 import 'package:flutter_boilerplate/res/theme/theme.dart';
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     ServiceLocator.setContext(context);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => AuthViewModel()),
       ],
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
