@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "102050433690",
+    "project_id": "crash-ebc87",
+    "storage_bucket": "crash-ebc87.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:102050433690:android:3cae53b2e83c698fc0ed23",
+        "android_client_info": {
+          "package_name": "com.example.bloc_practice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgO7LhAdLQHcBnLEGL7f1l-3e7gNMRMQw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
