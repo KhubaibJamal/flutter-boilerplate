@@ -10,12 +10,12 @@ class UserService {
     try {
       final response = await HttpService.getList(Urls.users);
 
-      if (response.listData != null) {
-        final data = response.listData!;
+      if (response.data != null) {
+        final data = response.data!;
 
-        final caloriesList = data.map((e) => UserModel.fromJson(e)).toList();
+        final users = data.map((e) => UserModel.fromJson(e)).toList();
 
-        return caloriesList;
+        return users;
       } else {
         if (kDebugMode) {
           print(

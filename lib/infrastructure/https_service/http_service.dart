@@ -1,73 +1,118 @@
-// ignore_for_file: unused_local_variable
-
-import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 
 import '../loca_storage_service/storage_service.dart';
+import 'api_error_handle.dart';
 
 class Response {
   Map<String, dynamic>? data = {};
-  List<dynamic>? listData;
   bool success;
   String? error;
+  int? statusCode;
 
-  Response({this.data, this.listData, this.error, required this.success});
+  Response({this.data, this.error, required this.success, this.statusCode});
 
-  factory Response.fromData({required Map<String, dynamic> data}) {
-    return Response(success: true, data: data, listData: null, error: null);
+  factory Response.fromData({
+    required Map<String, dynamic> data,
+    int? statusCode,
+  }) {
+    return Response(
+      success: true,
+      data: data,
+      error: null,
+      statusCode: statusCode,
+    );
   }
 
-  factory Response.fromList({required List<dynamic> listData}) {
-    return Response(success: true, data: null, listData: listData, error: null);
-  }
-
-  factory Response.fromError({required String error}) {
-    return Response(success: false, data: null, listData: null, error: error);
+  factory Response.fromError({required String error, int? statusCode}) {
+    return Response(
+      success: false,
+      data: null,
+      error: error,
+      statusCode: statusCode,
+    );
   }
 }
 
 class HttpService {
-  static const commonHeaders = {'content-type': 'application/json'};
+  static final Dio _dio =
+      Dio()
+        ..options = BaseOptions(
+          contentType: 'application/json',
+          responseType: ResponseType.json,
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
+        )
+        ..httpClientAdapter = NativeAdapter();
+
+  /// Getter for the Dio instance
+  static Dio get dio => _dio;
+
+  static Future<Map<String, String>> _getAuthHeaders({
+    bool withAuth = true,
+  }) async {
+    if (!withAuth) return {};
+
+    String authToken = await StorageService.getAuthToken();
+    return {"Authorization": "Bearer $authToken"};
+  }
 
   static Future<Response> postImage(
     String url, {
     required File imageFile,
     Map<String, String>? fields,
     Map<String, String> headers = const {},
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
     try {
-      var authHeaders = {"Authorization": "Bearer $authToken"};
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
 
-      var request = http.MultipartRequest('POST', Uri.parse(url))
-        ..headers.addAll({...commonHeaders, ...authHeaders, ...headers});
+      FormData formData = FormData();
 
-      // Add additional fields to the request
       if (fields != null) {
-        request.fields.addAll(fields);
+        fields.forEach((key, value) {
+          formData.fields.add(MapEntry(key, value));
+        });
       }
 
-      var multipartFile = await http.MultipartFile.fromPath(
-        'File',
-        imageFile.path,
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: imageFile.path.split('/').last,
+          ),
+        ),
       );
-      // request.files.add(multipartFile);
-      request.files.add(
-        await http.MultipartFile.fromPath('File', imageFile.path),
+
+      var response = await _dio.post(
+        url,
+        data: formData,
+        options: Options(headers: allHeaders),
       );
-      // request.files.add(http.MultipartFile.fromBytes(
-      //     'file', await File.fromUri(Uri.parse(imageFile.path)).readAsBytes()));
 
-      // Send the request
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return Response.fromData(data: jsonDecode(response.body));
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return Response.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return Response.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return Response.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
       return Response.fromError(error: error.toString());
     }
@@ -76,59 +121,71 @@ class HttpService {
   static Future<Response> get(
     String url, {
     Map<String, String> headers = const {},
-    bool withAuth = false,
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
-    var authHeaders = /*withAuth ? await getAuthHeaders() :*/ {
-      "Authorization": "Bearer $authToken",
-    };
-
     try {
-      var response = await http.get(
-        Uri.parse(url),
-        headers: {...commonHeaders, ...authHeaders, ...headers},
-      );
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return Response.fromData(data: jsonDecode(response.body));
+      var response = await _dio.get(url, options: Options(headers: allHeaders));
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return Response.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return Response.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return Response.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
       return Response.fromError(error: error.toString());
     }
   }
 
-  static Future<Response> getList(
+  static Future<ListResponse> getList(
     String url, {
     Map<String, String> headers = const {},
-    bool withAuth = false,
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
-    var authHeaders = /*withAuth ? await getAuthHeaders() :*/ {
-      "Authorization": "Bearer $authToken",
-    };
-
     try {
-      var response = await http.get(
-        Uri.parse(url),
-        headers: {...commonHeaders, ...authHeaders, ...headers},
-      );
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        var decodedBody = jsonDecode(response.body);
-        if (decodedBody is List) {
-          return Response.fromList(listData: decodedBody);
-        } else {
-          return Response.fromError(
-            error: 'Expected list but got ${decodedBody.runtimeType}',
-          );
-        }
+      var response = await _dio.get(url, options: Options(headers: allHeaders));
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return ListResponse.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return ListResponse.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return ListResponse.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
-      return Response.fromError(error: error.toString());
+      print(" Error in getList: $error ");
+      return ListResponse.fromError(error: error.toString());
     }
   }
 
@@ -136,24 +193,37 @@ class HttpService {
     String url, {
     required Map<String, dynamic> data,
     Map<String, String> headers = const {},
-    bool withAuth = false,
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
     try {
-      var authHeaders = /*withAuth ? await getAuthHeaders() :*/ {
-        "Authorization": "Bearer $authToken",
-      };
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {...commonHeaders, ...authHeaders, ...headers},
-        body: jsonEncode(data),
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
+
+      var response = await _dio.post(
+        url,
+        data: data,
+        options: Options(headers: allHeaders),
       );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return Response.fromData(data: jsonDecode(response.body));
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return Response.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return Response.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return Response.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
       return Response.fromError(error: error.toString());
     }
@@ -163,24 +233,37 @@ class HttpService {
     String url, {
     Map<String, dynamic> data = const {},
     Map<String, String> headers = const {},
-    bool withAuth = false,
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
     try {
-      var authHeaders = /*withAuth ? await getAuthHeaders() :*/ {
-        "Authorization": "Bearer $authToken",
-      };
-      var response = await http.delete(
-        Uri.parse(url),
-        headers: {...commonHeaders, ...authHeaders, ...headers},
-        body: jsonEncode(data),
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
+
+      var response = await _dio.delete(
+        url,
+        data: data,
+        options: Options(headers: allHeaders),
       );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return Response.fromData(data: jsonDecode(response.body));
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return Response.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return Response.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return Response.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
       return Response.fromError(error: error.toString());
     }
@@ -190,25 +273,37 @@ class HttpService {
     String url, {
     required Map<String, dynamic> data,
     Map<String, String> headers = const {},
-    bool withAuth = false,
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
     try {
-      var authHeaders = /*withAuth ? await getAuthHeaders() :*/ {
-        "Authorization": "Bearer $authToken",
-      };
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
 
-      var response = await http.put(
-        Uri.parse(url),
-        headers: {...commonHeaders, ...authHeaders, ...headers},
-        body: jsonEncode(data),
+      var response = await _dio.put(
+        url,
+        data: data,
+        options: Options(headers: allHeaders),
       );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return Response.fromData(data: jsonDecode(response.body));
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return Response.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return Response.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return Response.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
       return Response.fromError(error: error.toString());
     }
@@ -218,26 +313,184 @@ class HttpService {
     String url, {
     Map<String, dynamic>? data,
     Map<String, String> headers = const {},
-    bool withAuth = false,
+    bool withAuth = true,
   }) async {
-    String authToken = await StorageService.getAuthToken();
     try {
-      var authHeaders = /*withAuth ? await getAuthHeaders() :*/ {
-        "Authorization": "Bearer $authToken",
-      };
-      var response = await http.patch(
-        Uri.parse(url),
-        headers: {...commonHeaders, ...authHeaders, ...headers},
-        body: jsonEncode(data),
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
+
+      var response = await _dio.patch(
+        url,
+        data: data,
+        options: Options(headers: allHeaders),
       );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return Response.fromData(data: jsonDecode(response.body));
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return Response.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
       } else {
-        return Response.fromError(error: response.body);
+        return Response.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
       }
+    } on DioException catch (e) {
+      return Response.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (error) {
       return Response.fromError(error: error.toString());
     }
+  }
+
+  static Future<ListResponse> postList(
+    String url, {
+    required Map<String, dynamic> data,
+    Map<String, String> headers = const {},
+    bool withAuth = true,
+  }) async {
+    try {
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
+
+      var response = await _dio.post(
+        url,
+        data: data,
+        options: Options(headers: allHeaders),
+      );
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return ListResponse.fromData(
+          data: response.data,
+          statusCode: response.statusCode,
+        );
+      } else {
+        return ListResponse.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      return ListResponse.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
+    } catch (error) {
+      return ListResponse.fromError(error: error.toString());
+    }
+  }
+
+  static Future<UploadResponse> postImageUpload(
+    String url, {
+    required File imageFile,
+    Map<String, String>? fields,
+    Map<String, String> headers = const {},
+    bool withAuth = true,
+  }) async {
+    try {
+      var authHeaders = await _getAuthHeaders(withAuth: withAuth);
+      var allHeaders = {...authHeaders, ...headers};
+
+      FormData formData = FormData();
+
+      if (fields != null) {
+        fields.forEach((key, value) {
+          formData.fields.add(MapEntry(key, value));
+        });
+      }
+
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: imageFile.path.split('/').last,
+          ),
+        ),
+      );
+
+      var response = await _dio.post(
+        url,
+        data: formData,
+        options: Options(headers: allHeaders),
+      );
+
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return UploadResponse.fromSuccess(statusCode: response.statusCode);
+      } else {
+        return UploadResponse.fromError(
+          error: ApiErrorHandler.extractErrorMessage(
+            response.data,
+            response.statusCode,
+          ),
+          statusCode: response.statusCode,
+        );
+      }
+    } on DioException catch (e) {
+      return UploadResponse.fromError(
+        error: DioExceptionHandler.handleException(e),
+        statusCode: e.response?.statusCode,
+      );
+    } catch (error) {
+      return UploadResponse.fromError(error: error.toString());
+    }
+  }
+}
+
+class ListResponse {
+  List<dynamic>? data;
+  bool success;
+  String? error;
+  int? statusCode;
+
+  ListResponse({this.data, this.error, required this.success, this.statusCode});
+
+  factory ListResponse.fromData({required dynamic data, int? statusCode}) {
+    if (data is List) {
+      return ListResponse(
+        success: true,
+        data: data,
+        error: null,
+        statusCode: statusCode,
+      );
+    } else {
+      return ListResponse.fromError(
+        error: "Expected List but got ${data.runtimeType}",
+      );
+    }
+  }
+
+  factory ListResponse.fromError({required String error, int? statusCode}) {
+    return ListResponse(
+      success: false,
+      data: null,
+      error: error,
+      statusCode: statusCode,
+    );
+  }
+}
+
+class UploadResponse {
+  bool success;
+  String? error;
+  int? statusCode;
+
+  UploadResponse({required this.success, this.error, this.statusCode});
+
+  factory UploadResponse.fromSuccess({int? statusCode}) {
+    return UploadResponse(success: true, error: null, statusCode: statusCode);
+  }
+
+  factory UploadResponse.fromError({required String error, int? statusCode}) {
+    return UploadResponse(success: false, error: error, statusCode: statusCode);
   }
 }
