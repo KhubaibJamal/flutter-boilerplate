@@ -8,7 +8,7 @@ import 'package:flutter_boilerplate/res/theme/theme.dart';
 import 'package:flutter_boilerplate/utils/service_locator.dart';
 import 'package:flutter_boilerplate/utils/utils.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 void main() {

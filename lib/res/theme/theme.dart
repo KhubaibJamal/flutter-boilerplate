@@ -6,7 +6,7 @@ ThemeData darkTheme = ThemeData(
   snackBarTheme: const SnackBarThemeData(
       backgroundColor: CustomColors.primary,
       behavior: SnackBarBehavior.floating),
-  dialogTheme: DialogTheme(
+  dialogTheme: DialogThemeData(
     backgroundColor: CustomColors.white,
   ),
   bottomSheetTheme: const BottomSheetThemeData(
@@ -173,7 +173,7 @@ ThemeData lightTheme = ThemeData(
     backgroundColor: CustomColors.primary,
     behavior: SnackBarBehavior.fixed,
   ),
-  dialogTheme: DialogTheme(
+  dialogTheme: DialogThemeData(
     backgroundColor: CustomColors.white,
   ),
   bottomSheetTheme: const BottomSheetThemeData(
